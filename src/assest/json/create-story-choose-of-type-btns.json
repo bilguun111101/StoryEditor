@@ -1,0 +1,37 @@
+[
+  {
+    "image": "https://cdn4.iconfinder.com/data/icons/graphic-design-8/200/187-512.png",
+    "text": "Text",
+    "path": "asdf",
+    "id": "1",
+    "color": ["#9417E2", "#FC46AA", "#FF7355"]
+  },
+  {
+    "image": "https://cdn-icons-png.flaticon.com/512/282/282151.png",
+    "text": "Music",
+    "path": "asdf",
+    "id": "2",
+    "color": ["#62DA6E", "#67D6FF", "#33C7FF"]
+  },
+  {
+    "image": "https://cdn-icons-png.flaticon.com/512/637/637651.png",
+    "text": "Selfie",
+    "path": "asfd",
+    "id": "3",
+    "color": ["#FF7433", "#F5C55C", "#FF7433"]
+  },
+  {
+    "image": "https://static.vecteezy.com/system/resources/previews/019/787/033/non_2x/infinity-symbol-black-on-transparent-background-free-png.png",
+    "text": "Boomerang",
+    "path": "asdf",
+    "id": "4",
+    "color": ["#9417E2", "#FC46AA", "#FF7355"]
+  },
+  {
+    "image": "https://cdn-icons-png.flaticon.com/512/3566/3566345.png",
+    "text": "Green Screen",
+    "path": "asdf",
+    "id": "5",
+    "color": ["#9417E2", "#FC46AA", "#FF7355"]
+  }
+]
