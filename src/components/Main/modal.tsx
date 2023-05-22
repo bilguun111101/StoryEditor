@@ -1,11 +1,12 @@
 import {
-  StyleSheet,
   Text,
   View,
   Modal,
-  SafeAreaView,
-  Pressable,
   TextInput,
+  Pressable,
+  StyleSheet,
+  SafeAreaView,
+  Image,
 } from 'react-native';
 import React, {useCallback, useState} from 'react';
 
@@ -14,13 +15,22 @@ interface TextObject {
 }
 
 interface ModalTextProps {
-  visible: boolean;
+  visible?: boolean;
   texts: TextObject[];
+  onClick?: () => void;
+  onClose?: () => void;
   setVisible: (el: boolean) => void;
   setTexts: (el: TextObject[]) => void;
 }
 
-const ModalText = ({visible, setVisible, setTexts, texts}: ModalTextProps) => {
+const ModalText = ({
+  texts,
+  visible,
+  onClick,
+  // onClose,
+  setTexts,
+  setVisible,
+}: ModalTextProps) => {
   const [text, setText] = useState<string>('');
 
   const onSubmit = useCallback(() => {
@@ -32,6 +42,7 @@ const ModalText = ({visible, setVisible, setTexts, texts}: ModalTextProps) => {
     setTexts([...texts, {text}]);
     setVisible(false);
     setText('');
+    onClick ? onClick() : null;
   }, [visible, text]);
 
   return (
@@ -65,6 +76,7 @@ export default ModalText;
 const styles = StyleSheet.create({
   section: {
     backgroundColor: 'rgba(0,0,0,0.6)',
+    zIndex: 100,
   },
   container: {
     width: '100%',
