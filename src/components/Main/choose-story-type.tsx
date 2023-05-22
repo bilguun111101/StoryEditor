@@ -12,18 +12,18 @@ interface ChooseStoryTypeProps {
 }
 
 const ChooseStoryType = ({
-  image,
+  id,
   text,
   path,
+  image,
   color,
-  id,
 }: ChooseStoryTypeProps) => {
-  // const navigation = useNavigation<any>();
+  const navigation = useNavigation<any>();
   const onSubmit = useCallback(() => {
-    // navigation.navigate()
+    navigation.navigate(path);
   }, [path]);
   return (
-    <Pressable>
+    <Pressable onPress={onSubmit}>
       <LinearGradient colors={color} style={styles.container}>
         <View>
           <View style={styles.iconSection}>
