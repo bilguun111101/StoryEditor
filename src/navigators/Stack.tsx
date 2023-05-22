@@ -26,7 +26,11 @@ const Stack = () => {
           options={{headerShown: false}}
         />
         {/* </Stck.Group> */}
-        <Stck.Screen name="TextStory" component={TextStory} />
+        <Stck.Screen
+          name="TextStory"
+          component={TextStory}
+          options={{headerShown: false}}
+        />
       </Stck.Navigator>
     </NavigationContainer>
   );
