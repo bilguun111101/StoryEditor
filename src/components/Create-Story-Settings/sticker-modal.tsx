@@ -1,11 +1,33 @@
+import React, {useRef, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 
-const StickerModal = () => {
+interface StickerModalProps {
+  ref: any;
+  isOpen: boolean;
+  setIsOpen: (el: boolean) => void;
+  onSubmit: (index: number) => void;
+}
+
+const StickerModal = ({
+  ref,
+  isOpen,
+  onSubmit,
+  setIsOpen,
+}: StickerModalProps) => {
+  const snapPoints = ['90%'];
   return (
-    <View>
-      <Text>StickerModal</Text>
-    </View>
+    <BottomSheet
+      ref={ref}
+      snapPoints={snapPoints}
+      onClose={() => {
+        setIsOpen(false);
+      }}
+      enablePanDownToClose={true}>
+      <BottomSheetView>
+        <Text>Hello world</Text>
+      </BottomSheetView>
+    </BottomSheet>
   );
 };
 

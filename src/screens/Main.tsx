@@ -12,12 +12,12 @@ import {
   StatusBar,
 } from 'react-native';
 import {useSharedValue} from 'react-native-reanimated';
+import {useNavigation} from '@react-navigation/native';
 import {GalleryImage, ChooseStoryType} from '../components';
 import React, {useCallback, useEffect, useState} from 'react';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import DATA from '../assest/json/create-story-choose-of-type-btns.json';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {useNavigation} from '@react-navigation/native';
 
 interface Photos {
   url: string;
@@ -89,7 +89,7 @@ const Main = () => {
             paddingHorizontal: 20,
           }}
           horizontal
-          renderItem={({item}) => {
+          renderItem={({item, index}) => {
             const {image, text, path, id, color} = item;
             return (
               <ChooseStoryType

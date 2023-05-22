@@ -1,0 +1,3 @@
+interface TextObject {
+  text: string;
+}

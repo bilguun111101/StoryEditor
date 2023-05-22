@@ -9,15 +9,9 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-// import {useSharedValue} from 'react-native-reanimated';
-import ModalText from '../components/Create-Story-Settings/modal';
-// import {Gesture, GestureHandlerRootView} from 'react-native-gesture-handler';
-
-interface TextObject {
-  text: string;
-}
+import React, {useCallback, useRef, useState} from 'react';
+import ModalText from '../components/Main/modal';
 
 import {Dimensions} from 'react-native';
 import {
@@ -33,6 +27,8 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+import {StickerModal} from '../components';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 interface AnimatedPosition {
   x: Animated.SharedValue<number>;
@@ -43,17 +39,14 @@ const useFollowAnimatedPosition = ({x, y}: AnimatedPosition) => {
   const followX = useDerivedValue(() => {
     return withSpring(x.value);
   });
-
   const followY = useDerivedValue(() => {
     return withSpring(y.value);
   });
-
   const rStyle = useAnimatedStyle(() => {
     return {
       transform: [{translateX: followX.value}, {translateY: followY.value}],
     };
   });
-
   return {followX, followY, rStyle};
 };
 
@@ -67,11 +60,21 @@ const ImageEditor = ({route}: any) => {
   const [texts, setTexts] = useState<TextObject[]>([]);
   const [textVisible, setTextVisible] = useState<boolean>(false);
 
+  //
+  const sheetRef = useRef<BottomSheet>(null);
+  const [isStickerOpen, setIsStickerOpen] = useState<boolean>(false);
+  const StickerOnSubmit = useCallback(() => {
+    sheetRef.current?.snapToIndex(0);
+    setIsStickerOpen(true);
+  }, []);
+  //
+
+  // =======================
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
   const context = useSharedValue({x: 0, y: 0});
-  // useAnimatedGestureHandler({})
+
   const gesture = Gesture.Pan()
     .onStart(() => {
       context.value = {x: translateX.value, y: translateY.value};
@@ -89,20 +92,21 @@ const ImageEditor = ({route}: any) => {
     });
 
   const {
-    followX: blueFollowX,
-    followY: blueFollowY,
+    // followX: blueFollowX,
+    // followY: blueFollowY,
     rStyle: rBlueCircleStyle,
   } = useFollowAnimatedPosition({
     x: translateX,
     y: translateY,
   });
+  // --------------------
 
   const onTextClick = useCallback(() => {
     setTextVisible(true);
   }, [textVisible]);
 
   const right_buttons = [
-    {text: 'Stickers', setVisible: setTextVisible, onClick: onTextClick},
+    {text: 'Stickers', setVisible: setTextVisible, onClick: StickerOnSubmit},
     {text: 'Text', setVisible: setTextVisible, onClick: onTextClick},
     {text: 'Music', setVisible: setTextVisible, onClick: onTextClick},
     {text: 'Effects', setVisible: setTextVisible, onClick: onTextClick},
@@ -115,6 +119,19 @@ const ImageEditor = ({route}: any) => {
       <GestureHandlerRootView style={{flex: 1}}>
         <GestureDetector gesture={gesture}>
           <ImageBackground source={{uri: image}} style={styles.imageBackground}>
+            {texts.length !== 0
+              ? (() => {
+                  return (
+                    <Animated.View
+                      style={[styles.textSection, rBlueCircleStyle]}>
+                      <Animated.Text style={styles.text}>
+                        {texts[texts.length - 1].text}
+                      </Animated.Text>
+                    </Animated.View>
+                  );
+                })()
+              : null}
+            {/*  */}
             <View style={styles.headerSection}>
               <Pressable onPress={() => navigation.goBack()}>
                 <Image
@@ -129,7 +146,6 @@ const ImageEditor = ({route}: any) => {
                 {right_buttons.map((el, idx) => {
                   const {text, setVisible, onClick} = el;
                   const onSubmit = useCallback(() => {
-                    // setVisible(true);
                     onClick();
                   }, [setVisible, onClick]);
                   return (
@@ -143,20 +159,6 @@ const ImageEditor = ({route}: any) => {
                 })}
               </View>
             </View>
-
-            {texts.length !== 0
-              ? (() => {
-                  return (
-                    <Animated.View
-                      style={[styles.textSection, rBlueCircleStyle]}>
-                      <Animated.Text style={styles.text}>
-                        {texts[0].text}
-                      </Animated.Text>
-                    </Animated.View>
-                  );
-                })()
-              : null}
-
             {/*  */}
           </ImageBackground>
         </GestureDetector>
@@ -166,6 +168,15 @@ const ImageEditor = ({route}: any) => {
           setVisible={setTextVisible}
           texts={texts}
         />
+
+        {isStickerOpen ? (
+          <StickerModal
+            isOpen={isStickerOpen}
+            setIsOpen={setIsStickerOpen}
+            onSubmit={StickerOnSubmit}
+            ref={sheetRef}
+          />
+        ) : null}
       </GestureHandlerRootView>
     </SafeAreaView>
   );
