@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import React, {useCallback, useState} from 'react';
 
@@ -17,6 +18,7 @@ interface ModalTextProps {
   visible?: boolean;
   texts: TextObject[];
   onClick?: () => void;
+  onClose?: () => void;
   setVisible: (el: boolean) => void;
   setTexts: (el: TextObject[]) => void;
 }
@@ -25,6 +27,7 @@ const ModalText = ({
   texts,
   visible,
   onClick,
+  // onClose,
   setTexts,
   setVisible,
 }: ModalTextProps) => {
@@ -73,6 +76,7 @@ export default ModalText;
 const styles = StyleSheet.create({
   section: {
     backgroundColor: 'rgba(0,0,0,0.6)',
+    zIndex: 100,
   },
   container: {
     width: '100%',
