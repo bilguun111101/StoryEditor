@@ -9,6 +9,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 import {useSharedValue} from 'react-native-reanimated';
 import {GalleryImage, ChooseStoryType} from '../components';
@@ -48,12 +49,6 @@ const Main = () => {
       first: 20,
       assetType: 'Photos',
     }).then(imagesArray => {
-      console.log(
-        imagesArray.edges.map((el, index) => ({
-          url: el.node.image.uri,
-        })),
-      );
-      // imagesArray.edges.forEach(el => photoArray.push({ url: el.node.image.uri }));
       setImages(
         imagesArray.edges.map((el, idx) => ({
           url: el.node.image.uri,
@@ -65,6 +60,7 @@ const Main = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       <View>
         <View style={styles.titleSection}>
           <Pressable onPress={() => {}}>
@@ -153,7 +149,7 @@ const Main = () => {
               />
             );
           }}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.url}
           showsVerticalScrollIndicator={false}
         />
       </View>

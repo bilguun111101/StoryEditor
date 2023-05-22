@@ -1,42 +1,105 @@
 import {
-  Dimensions,
-  Image,
-  ImageBackground,
-  Pressable,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
   Text,
-  Touchable,
-  TouchableOpacity,
   View,
-  useWindowDimensions,
+  Image,
+  StatusBar,
+  Pressable,
+  StyleSheet,
+  SafeAreaView,
+  ImageBackground,
+  TouchableOpacity,
 } from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import React, {useCallback, useRef, useState} from 'react';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import TextModal, {
-  TextModalRefProps,
-} from '../components/Create-Story-Settings/text-modal';
+// import {useSharedValue} from 'react-native-reanimated';
+import ModalText from '../components/Create-Story-Settings/modal';
+// import {Gesture, GestureHandlerRootView} from 'react-native-gesture-handler';
 
-const {height: SCREEN_HEIGHT} = Dimensions.get('window');
+interface TextObject {
+  text: string;
+}
+
+import {Dimensions} from 'react-native';
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
+
+import Animated, {
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+
+interface AnimatedPosition {
+  x: Animated.SharedValue<number>;
+  y: Animated.SharedValue<number>;
+}
+
+const useFollowAnimatedPosition = ({x, y}: AnimatedPosition) => {
+  const followX = useDerivedValue(() => {
+    return withSpring(x.value);
+  });
+
+  const followY = useDerivedValue(() => {
+    return withSpring(y.value);
+  });
+
+  const rStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{translateX: followX.value}, {translateY: followY.value}],
+    };
+  });
+
+  return {followX, followY, rStyle};
+};
+
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
+
+const SIZE = 80;
 
 const ImageEditor = ({route}: any) => {
   const {image} = route.params;
   const navigation = useNavigation<any>();
-  const [texts, setTexts] = useState<object[]>([]);
+  const [texts, setTexts] = useState<TextObject[]>([]);
   const [textVisible, setTextVisible] = useState<boolean>(false);
 
-  const textRef = useRef<TextModalRefProps>(null);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  const context = useSharedValue({x: 0, y: 0});
+  // useAnimatedGestureHandler({})
+  const gesture = Gesture.Pan()
+    .onStart(() => {
+      context.value = {x: translateX.value, y: translateY.value};
+    })
+    .onUpdate(event => {
+      translateX.value = event.translationX + context.value.x;
+      translateY.value = event.translationY + context.value.y;
+    })
+    .onEnd(() => {
+      if (translateX.value > SCREEN_WIDTH / 2) {
+        translateX.value = SCREEN_WIDTH - SIZE;
+      } else {
+        translateX.value = 0;
+      }
+    });
+
+  const {
+    followX: blueFollowX,
+    followY: blueFollowY,
+    rStyle: rBlueCircleStyle,
+  } = useFollowAnimatedPosition({
+    x: translateX,
+    y: translateY,
+  });
 
   const onTextClick = useCallback(() => {
-    const isActive = textRef?.current?.isActive();
-    if (isActive) {
-      textRef?.current?.scrollTo(0);
-    } else {
-      textRef?.current?.scrollTo(-SCREEN_HEIGHT);
-    }
-  }, []);
+    setTextVisible(true);
+  }, [textVisible]);
 
   const right_buttons = [
     {text: 'Stickers', setVisible: setTextVisible, onClick: onTextClick},
@@ -50,38 +113,59 @@ const ImageEditor = ({route}: any) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       <GestureHandlerRootView style={{flex: 1}}>
-        <ImageBackground source={{uri: image}} style={styles.imageBackground}>
-          <View style={styles.headerSection}>
-            <Pressable onPress={() => navigation.goBack()}>
-              <Image
-                source={{
-                  uri: 'https://flaticons.net/icon.php?slug_category=mobile-application&slug_icon=close',
-                }}
-                style={styles.closeBtn}
-              />
-            </Pressable>
+        <GestureDetector gesture={gesture}>
+          <ImageBackground source={{uri: image}} style={styles.imageBackground}>
+            <View style={styles.headerSection}>
+              <Pressable onPress={() => navigation.goBack()}>
+                <Image
+                  source={{
+                    uri: 'https://flaticons.net/icon.php?slug_category=mobile-application&slug_icon=close',
+                  }}
+                  style={styles.closeBtn}
+                />
+              </Pressable>
 
-            <View style={styles.headerRightBtnsSection}>
-              {right_buttons.map((el, idx) => {
-                const {text, setVisible, onClick} = el;
-                const onSubmit = useCallback(() => {
-                  setVisible(true);
-                  onClick();
-                }, [setVisible, onClick]);
-                return (
-                  <TouchableOpacity
-                    key={el.text}
-                    style={styles.rightBtnSection}
-                    onPress={onSubmit}>
-                    <Text style={styles.rightBtnText}>{text}</Text>
-                  </TouchableOpacity>
-                );
-              })}
+              <View style={[styles.headerRightBtnsSection]}>
+                {right_buttons.map((el, idx) => {
+                  const {text, setVisible, onClick} = el;
+                  const onSubmit = useCallback(() => {
+                    // setVisible(true);
+                    onClick();
+                  }, [setVisible, onClick]);
+                  return (
+                    <TouchableOpacity
+                      key={el.text}
+                      onPress={onSubmit}
+                      style={styles.rightBtnSection}>
+                      <Text style={styles.rightBtnText}>{text}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-          </View>
-        </ImageBackground>
 
-        {/* <TextModal ref={textRef} /> */}
+            {texts.length !== 0
+              ? (() => {
+                  return (
+                    <Animated.View
+                      style={[styles.textSection, rBlueCircleStyle]}>
+                      <Animated.Text style={styles.text}>
+                        {texts[0].text}
+                      </Animated.Text>
+                    </Animated.View>
+                  );
+                })()
+              : null}
+
+            {/*  */}
+          </ImageBackground>
+        </GestureDetector>
+        <ModalText
+          setTexts={setTexts}
+          visible={textVisible}
+          setVisible={setTextVisible}
+          texts={texts}
+        />
       </GestureHandlerRootView>
     </SafeAreaView>
   );
@@ -126,5 +210,17 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
     textShadowColor: '#000',
     textShadowOffset: {width: 1, height: 1},
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  textSection: {
+    borderRadius: 10,
+    paddingVertical: 10,
+    position: 'absolute',
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
   },
 });

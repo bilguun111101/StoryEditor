@@ -1,8 +1,7 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Navigation} from 'react-native-navigation';
-import {CreateStorySettings, ImageEditor, Main} from '../screens';
 import {NavigationContainer} from '@react-navigation/native';
-import textModal from '../components/Create-Story-Settings/text-modal';
+import {CreateStorySettings, ImageEditor, Main} from '../screens';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 const Stck = createNativeStackNavigator();
 
@@ -16,14 +15,18 @@ const Stack = () => {
           options={{headerShown: false}}
         />
         <Stck.Screen
+          name="CreateStorySettings"
+          component={CreateStorySettings}
+        />
+        <Stck.Screen
           name="ImageEditor"
           component={ImageEditor}
           options={{headerShown: false}}
         />
-        <Stck.Screen
+        {/* <Stck.Screen
           name="CreateStorySettings"
           component={CreateStorySettings}
-        />
+        /> */}
       </Stck.Navigator>
     </NavigationContainer>
   );
