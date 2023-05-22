@@ -44,7 +44,7 @@ const GalleryImage = ({
   }, [navigation]);
   return (
     <TouchableOpacity
-      onPress={() => onSubmit()}
+      onPress={onSubmit}
       style={{...styles.container, marginRight: marginRightNone ? 0 : 2}}>
       <Animated.View
         style={[

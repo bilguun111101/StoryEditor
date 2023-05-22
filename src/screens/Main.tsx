@@ -16,6 +16,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import DATA from '../assest/json/create-story-choose-of-type-btns.json';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {useNavigation} from '@react-navigation/native';
 
 interface Photos {
   url: string;
@@ -23,6 +24,7 @@ interface Photos {
 
 const Main = () => {
   const [images, setImages] = useState<any>([]);
+  const navigation = useNavigation<any>();
   const array = new Array(20).fill(0).map((_, idx) => ({
     id: `${idx + 1}`,
     path: '',
@@ -72,7 +74,10 @@ const Main = () => {
             />
           </Pressable>
           <Text style={styles.title}>Create story</Text>
-          <Pressable onPress={() => {}}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate('CreateStorySettings');
+            }}>
             <Image
               source={require('../assest/icons/Setting-Icon-SVG-03mcds.png')}
               style={styles.settingsBtn}
