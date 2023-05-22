@@ -1,6 +1,7 @@
 import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
+import ModalText from './modal';
 
 const TextStory = () => {
   return (
@@ -9,6 +10,7 @@ const TextStory = () => {
       <LinearGradient
         colors={['#4D83FF', '#205EED', '#0046E7']}
         style={styles.colorsBackground}></LinearGradient>
+      <ModalText onClick={() => {}} />
     </SafeAreaView>
   );
 };

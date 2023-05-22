@@ -1,11 +1,11 @@
 import {
-  StyleSheet,
   Text,
   View,
   Modal,
-  SafeAreaView,
-  Pressable,
   TextInput,
+  Pressable,
+  StyleSheet,
+  SafeAreaView,
 } from 'react-native';
 import React, {useCallback, useState} from 'react';
 
@@ -14,13 +14,20 @@ interface TextObject {
 }
 
 interface ModalTextProps {
-  visible: boolean;
+  visible?: boolean;
   texts: TextObject[];
+  onClick?: () => void;
   setVisible: (el: boolean) => void;
   setTexts: (el: TextObject[]) => void;
 }
 
-const ModalText = ({visible, setVisible, setTexts, texts}: ModalTextProps) => {
+const ModalText = ({
+  texts,
+  visible,
+  onClick,
+  setTexts,
+  setVisible,
+}: ModalTextProps) => {
   const [text, setText] = useState<string>('');
 
   const onSubmit = useCallback(() => {
@@ -32,6 +39,7 @@ const ModalText = ({visible, setVisible, setTexts, texts}: ModalTextProps) => {
     setTexts([...texts, {text}]);
     setVisible(false);
     setText('');
+    onClick ? onClick() : null;
   }, [visible, text]);
 
   return (
