@@ -7,48 +7,27 @@ import {
   StyleSheet,
   SafeAreaView,
   ImageBackground,
+  TouchableOpacity,
+  Share,
 } from 'react-native';
-import ViewShot from 'react-native-view-shot';
+import ViewShot, {captureRef} from 'react-native-view-shot';
 import {useNavigation} from '@react-navigation/native';
 import React, {useCallback, useRef, useState} from 'react';
 
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
-import Animated, {
-  useAnimatedStyle,
-  useDerivedValue,
-  withSpring,
-} from 'react-native-reanimated';
 import BottomSheet from '@gorhom/bottom-sheet';
 import {AnimatedText, ModalText, StickerModal} from '../components';
-
-interface AnimatedPosition {
-  x: Animated.SharedValue<number>;
-  y: Animated.SharedValue<number>;
-}
-
-const useFollowAnimatedPosition = ({x, y}: AnimatedPosition) => {
-  const followX = useDerivedValue(() => {
-    return withSpring(x.value);
-  });
-  const followY = useDerivedValue(() => {
-    return withSpring(y.value);
-  });
-  const rStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{translateX: followX.value}, {translateY: followY.value}],
-    };
-  });
-  return {followX, followY, rStyle};
-};
 
 const ImageEditor = ({route}: any) => {
   const {image} = route.params;
   const navigation = useNavigation<any>();
   const [texts, setTexts] = useState<TextObject[]>([]);
   const [textVisible, setTextVisible] = useState<boolean>(false);
-
   //
+  const view_shot_ref = useRef<any>();
+  //
+
   const stickerRef = useRef<BottomSheet>(null);
   const [isStickerOpen, setIsStickerOpen] = useState<boolean>(false);
   const StickerOnSubmit = useCallback(() => {
@@ -61,9 +40,17 @@ const ImageEditor = ({route}: any) => {
     setTextVisible(true);
   }, [textVisible]);
 
-  const onCapture = useCallback((uri: any) => {
-    console.log(uri);
-  }, []);
+  //
+  const onCapture = useCallback(async () => {
+    try {
+      captureRef(view_shot_ref).then(uri => {
+        navigation.navigate('NextPage', {image: uri});
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }, [view_shot_ref.current]);
+  //
 
   const right_buttons = [
     {text: 'Stickers', setVisible: setTextVisible, onClick: StickerOnSubmit},
@@ -80,7 +67,7 @@ const ImageEditor = ({route}: any) => {
         <View style={styles.content}>
           {/* Header Buttons */}
           <Pressable
-            style={styles.closeBtn}
+            style={[styles.closeBtn]}
             onPress={() => navigation.goBack()}>
             <Image
               source={require('../assest/icons/icon.php.png')}
@@ -88,7 +75,12 @@ const ImageEditor = ({route}: any) => {
             />
           </Pressable>
 
-          <View style={styles.rightBtnsSection}>
+          {/* Share Button */}
+          <TouchableOpacity style={[styles.shareBtn]} onPress={onCapture}>
+            <Text style={styles.shareBtnText}>Share</Text>
+          </TouchableOpacity>
+          {/* Share Button */}
+          <View style={[styles.rightBtnsSection]}>
             {right_buttons.map(el => (
               <Pressable onPress={el.onClick} key={el.text}>
                 <Text style={styles.rightText}>{el.text}</Text>
@@ -96,9 +88,13 @@ const ImageEditor = ({route}: any) => {
             ))}
           </View>
           {/* Header Buttons */}
+          {/*  */}
           {/* Content Section */}
-          {/* <GestureDetector gesture={gesture}> */}
-          <ViewShot style={styles.viewShot} onCapture={onCapture}>
+          <ViewShot
+            ref={view_shot_ref}
+            // captureMode="continuous"
+            style={styles.viewShot}
+            options={{format: 'jpg', quality: 1.0}}>
             <ImageBackground
               style={styles.imageBackground}
               source={{uri: image}}>
@@ -111,7 +107,6 @@ const ImageEditor = ({route}: any) => {
               ) : null}
             </ImageBackground>
           </ViewShot>
-
           {/* Modals */}
           <ModalText
             texts={texts}
@@ -119,8 +114,8 @@ const ImageEditor = ({route}: any) => {
             setTexts={setTexts}
             setVisible={setTextVisible}
           />
+          {/* Modals */}
           {/*  */}
-          {/* </GestureDetector> */}
           {/* Content Section */}
         </View>
         <StickerModal visible={isStickerOpen} setVisible={setIsStickerOpen} />
@@ -184,5 +179,20 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 100,
+  },
+  shareBtn: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    zIndex: 100,
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: '#1DA1F2',
+  },
+  shareBtnText: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: '600',
   },
 });

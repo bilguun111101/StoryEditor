@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {CreateStorySettings, ImageEditor, Main} from '../screens';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Test from '../screens/Test';
+import NextPage from '../screens/NextPage';
 
 const Stck = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ const Stack = () => {
             component={TextStory}
             options={{headerShown: false}}
           />
+          <Stck.Screen name="NextPage" component={NextPage} />
         </Stck.Group>
       </Stck.Navigator>
     </NavigationContainer>
