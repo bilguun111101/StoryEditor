@@ -12,6 +12,10 @@ import {
   PanGestureHandlerGestureEvent,
 } from 'react-native-gesture-handler';
 
+interface AnimatedTextProps {
+  text: string;
+}
+
 const SIZE = 100.0;
 
 type ContextType = {
@@ -19,9 +23,9 @@ type ContextType = {
   translateY: number;
 };
 
-const Test = () => {
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
+const AnimatedText = ({text}: AnimatedTextProps) => {
+  const translateX = useSharedValue(140);
+  const translateY = useSharedValue(400);
   const panGestureEvent = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
     ContextType
@@ -34,7 +38,7 @@ const Test = () => {
       translateX.value = event.translationX + context.translateX;
       translateY.value = event.translationY + context.translateY;
     },
-    onEnd: event => {},
+    // onEnd: event => {},
   });
 
   const rStyle = useAnimatedStyle(() => {
@@ -46,29 +50,27 @@ const Test = () => {
     };
   });
   return (
-    <View style={styles.container}>
-      <GestureHandlerRootView style={styles.container}>
-        <PanGestureHandler onGestureEvent={panGestureEvent}>
-          <Animated.View style={[styles.square, rStyle]} />
-        </PanGestureHandler>
-      </GestureHandlerRootView>
-    </View>
+    <PanGestureHandler onGestureEvent={panGestureEvent}>
+      <Animated.View style={[styles.textSection, rStyle]}>
+        <Animated.Text style={styles.text}>{text}</Animated.Text>
+      </Animated.View>
+    </PanGestureHandler>
   );
 };
 
-export default Test;
+export default AnimatedText;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
+  textSection: {
+    borderRadius: 10,
+    paddingVertical: 10,
+    position: 'absolute',
+    paddingHorizontal: 20,
     backgroundColor: '#fff',
-    justifyContent: 'center',
   },
-  square: {
-    width: SIZE,
-    height: SIZE,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 256, 0.5)',
+  text: {
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });
