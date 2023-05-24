@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import ViewShot, {captureRef} from 'react-native-view-shot';
 
 import {
@@ -53,9 +53,8 @@ const ImageEditor = ({route}: any) => {
   // Click functions
   const onCapture = useCallback(async () => {
     try {
-      captureRef(view_shot_ref).then(uri => {
-        navigation.navigate('NextPage', {image: uri});
-      });
+      const uri = await captureRef(view_shot_ref);
+      navigation.navigate('NextPage', {image: uri});
     } catch (error) {
       console.log(error);
     }
@@ -73,12 +72,13 @@ const ImageEditor = ({route}: any) => {
         if (event.scale < 1) return;
         scale.value = event.scale;
       },
-      onEnd: event => {
+      onEnd: () => {
         scale.value = 1;
       },
     });
   //
 
+  // Header buttons element
   const right_buttons = [
     {text: 'Stickers', setVisible: setTextVisible, onClick: StickerOnSubmit},
     {text: 'Text', setVisible: setTextVisible, onClick: onTextClick},
@@ -87,6 +87,7 @@ const ImageEditor = ({route}: any) => {
     {text: 'Draw', setVisible: setTextVisible, onClick: onTextClick},
   ];
 
+  // Reanimated style
   const rStyle = useAnimatedStyle(() => {
     return {
       transform: [{scale: scale.value}],
@@ -126,7 +127,7 @@ const ImageEditor = ({route}: any) => {
           <ViewShot
             ref={view_shot_ref}
             style={styles.viewShot}
-            options={{format: 'jpg', quality: 1.0}}>
+            options={{format: 'png', quality: 1.0}}>
             <PinchGestureHandler onGestureEvent={pinchHandler}>
               <AnimatedImageBackground
                 style={[styles.imageBackground, rStyle]}
