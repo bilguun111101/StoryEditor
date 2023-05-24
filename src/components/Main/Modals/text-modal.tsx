@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
+// import {v4 as uuidv4} from 'uuid'
 import React, {useCallback, useState} from 'react';
 
 interface TextObject {
@@ -18,7 +19,6 @@ interface ModalTextProps {
   visible?: boolean;
   texts: TextObject[];
   onClick?: () => void;
-  onClose?: () => void;
   setVisible: (el: boolean) => void;
   setTexts: (el: TextObject[]) => void;
 }
@@ -27,7 +27,6 @@ const ModalText = ({
   texts,
   visible,
   onClick,
-  // onClose,
   setTexts,
   setVisible,
 }: ModalTextProps) => {

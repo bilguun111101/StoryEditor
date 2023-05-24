@@ -8,26 +8,40 @@ import {
   SafeAreaView,
   ImageBackground,
   TouchableOpacity,
-  Share,
 } from 'react-native';
-import ViewShot, {captureRef} from 'react-native-view-shot';
 import {useNavigation} from '@react-navigation/native';
 import React, {useCallback, useRef, useState} from 'react';
+import ViewShot, {captureRef} from 'react-native-view-shot';
 
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {
+  PinchGestureHandler,
+  GestureHandlerRootView,
+  PinchGestureHandlerGestureEvent,
+} from 'react-native-gesture-handler';
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import {AnimatedText, ModalText, StickerModal} from '../components';
+import Animated, {
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 const ImageEditor = ({route}: any) => {
   const {image} = route.params;
+
+  // Some variables
   const navigation = useNavigation<any>();
   const [texts, setTexts] = useState<TextObject[]>([]);
   const [textVisible, setTextVisible] = useState<boolean>(false);
-  //
+  // View shot variable
   const view_shot_ref = useRef<any>();
-  //
+  // Some reanimated values
+  const scale = useSharedValue(1);
+  const AnimatedImageBackground =
+    Animated.createAnimatedComponent(ImageBackground);
 
+  // Modal variables
   const stickerRef = useRef<BottomSheet>(null);
   const [isStickerOpen, setIsStickerOpen] = useState<boolean>(false);
   const StickerOnSubmit = useCallback(() => {
@@ -36,11 +50,7 @@ const ImageEditor = ({route}: any) => {
   }, []);
   // --------------------
 
-  const onTextClick = useCallback(() => {
-    setTextVisible(true);
-  }, [textVisible]);
-
-  //
+  // Click functions
   const onCapture = useCallback(async () => {
     try {
       captureRef(view_shot_ref).then(uri => {
@@ -50,6 +60,23 @@ const ImageEditor = ({route}: any) => {
       console.log(error);
     }
   }, [view_shot_ref.current]);
+
+  const onTextClick = useCallback(() => {
+    setTextVisible(true);
+  }, [textVisible]);
+  //
+
+  // Gesture handlers
+  const pinchHandler =
+    useAnimatedGestureHandler<PinchGestureHandlerGestureEvent>({
+      onActive: event => {
+        if (event.scale < 1) return;
+        scale.value = event.scale;
+      },
+      onEnd: event => {
+        scale.value = 1;
+      },
+    });
   //
 
   const right_buttons = [
@@ -59,6 +86,12 @@ const ImageEditor = ({route}: any) => {
     {text: 'Effects', setVisible: setTextVisible, onClick: onTextClick},
     {text: 'Draw', setVisible: setTextVisible, onClick: onTextClick},
   ];
+
+  const rStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{scale: scale.value}],
+    };
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,20 +125,21 @@ const ImageEditor = ({route}: any) => {
           {/* Content Section */}
           <ViewShot
             ref={view_shot_ref}
-            // captureMode="continuous"
             style={styles.viewShot}
             options={{format: 'jpg', quality: 1.0}}>
-            <ImageBackground
-              style={styles.imageBackground}
-              source={{uri: image}}>
-              {texts.length !== 0 ? (
-                <>
-                  {texts.map((el, idx) => {
-                    return <AnimatedText text={el.text} key={idx} />;
-                  })}
-                </>
-              ) : null}
-            </ImageBackground>
+            <PinchGestureHandler onGestureEvent={pinchHandler}>
+              <AnimatedImageBackground
+                style={[styles.imageBackground, rStyle]}
+                source={{uri: image}}>
+                {texts.length !== 0 ? (
+                  <>
+                    {texts.map((el, idx) => {
+                      return <AnimatedText text={el.text} key={idx} />;
+                    })}
+                  </>
+                ) : null}
+              </AnimatedImageBackground>
+            </PinchGestureHandler>
           </ViewShot>
           {/* Modals */}
           <ModalText
