@@ -13,18 +13,24 @@ import {
 } from 'react-native';
 import {useSharedValue} from 'react-native-reanimated';
 import {useNavigation} from '@react-navigation/native';
-import {GalleryImage, ChooseStoryType} from '../components';
+import {GalleryImage, ChooseStoryType, SelectDropdown} from '../components';
 import React, {useCallback, useEffect, useState} from 'react';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import DATA from '../assest/json/create-story-choose-of-type-btns.json';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
-interface Photos {
-  url: string;
-}
+const selectType: state[] = [
+  {text: 'Gallery', assetType: 'Photos'},
+  {text: 'Videos', assetType: 'Videos'},
+];
 
 const Main = () => {
   const [images, setImages] = useState<any>([]);
+  const [videos, setVideos] = useState<any>([]);
+  const [contentType, setContentType] = useState<{
+    visible: boolean;
+    contentType: state;
+  }>({visible: false, contentType: selectType[0]});
   const navigation = useNavigation<any>();
   const array = new Array(20).fill(0).map((_, idx) => ({
     id: `${idx + 1}`,
@@ -41,13 +47,30 @@ const Main = () => {
         return response;
       },
     );
-    console.log(response);
   }, []);
+
+  const TakePhoto = useCallback(async () => {
+    try {
+      const response = await launchCamera({
+        mediaType: 'photo',
+        saveToPhotos: true,
+      });
+      navigation.navigate('ImageEditor', {image: response});
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  const SelectTypeCallery = useCallback(() => {
+    setContentType(() => {
+      return {...contentType, visible: !contentType.visible};
+    });
+  }, [contentType]);
 
   useEffect(() => {
     CameraRoll.getPhotos({
       first: 20,
-      assetType: 'Photos',
+      assetType: contentType.contentType.assetType,
     }).then(imagesArray => {
       setImages(
         imagesArray.edges.map((el, idx) => ({
@@ -106,14 +129,20 @@ const Main = () => {
         />
 
         <View style={styles.gallerySelectSection}>
-          <Pressable style={styles.gallerySelectTitleSection}>
-            <Text style={styles.gallerySelectTitle}>Gallery</Text>
-            <Image
-              source={{
-                uri: 'https://www.iconpacks.net/icons/2/free-arrow-down-icon-3101-thumb.png',
-              }}
+          <Pressable
+            style={styles.gallerySelectTitleSection}
+            onPress={SelectTypeCallery}>
+            <Text style={styles.gallerySelectTitle}>
+              {contentType.contentType.text}
+            </Text>
+            <SelectDropdown
+              data={selectType}
+              setState={setContentType}
+              visible={contentType.visible}
+              state={contentType.contentType}
             />
           </Pressable>
+          {/* <SelectDropdown /> */}
 
           <TouchableOpacity style={styles.selectMultiple} onPress={LoadLib}>
             <Image
@@ -153,6 +182,12 @@ const Main = () => {
           showsVerticalScrollIndicator={false}
         />
       </View>
+      <TouchableOpacity style={styles.openCameraBtn} onPress={TakePhoto}>
+        <Image
+          source={require('../assest/icons/white-camera.png')}
+          style={styles.camera}
+        />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -188,9 +223,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   gallerySelectTitleSection: {
+    gap: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    position: 'relative',
   },
   gallerySelectTitleImage: {
     width: 10,
@@ -223,5 +259,18 @@ const styles = StyleSheet.create({
   },
   content: {
     width: '100%',
+  },
+  openCameraBtn: {
+    position: 'absolute',
+    right: 20,
+    bottom: 60,
+    padding: 10,
+    zIndex: 100,
+    borderRadius: 100,
+    backgroundColor: '#1877F2',
+  },
+  camera: {
+    width: 30,
+    height: 30,
   },
 });

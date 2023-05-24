@@ -29,7 +29,7 @@ const AnimatedText = ({text}: AnimatedTextProps) => {
   const translateX = useSharedValue(140);
   const translateY = useSharedValue(400);
   const scale = useSharedValue(1);
-  const rotate = useSharedValue(1);
+  const rotate = useSharedValue(0);
 
   //Reanimated gesture handler events
   const panGestureEvent = useAnimatedGestureHandler<
@@ -68,7 +68,7 @@ const AnimatedText = ({text}: AnimatedTextProps) => {
         {translateX: translateX.value},
         {translateY: translateY.value},
         {scale: scale.value},
-        {rotate: `${rotate.value}deg`},
+        // {rotate: `${rotate.value}deg`},
       ],
     };
   });
