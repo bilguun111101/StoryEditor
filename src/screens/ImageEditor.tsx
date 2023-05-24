@@ -10,8 +10,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
 import ViewShot, {captureRef} from 'react-native-view-shot';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+
+// import {FFmpegKit, ReturnCode} from 'ffmpeg-kit-react-native';
 
 import {
   PinchGestureHandler,
@@ -54,7 +56,20 @@ const ImageEditor = ({route}: any) => {
   const onCapture = useCallback(async () => {
     try {
       const uri = await captureRef(view_shot_ref);
-      navigation.navigate('NextPage', {image: uri});
+      // navigation.navigate('NextPage', {image: uri});
+      // FFmpegKit.execute(
+      //   `-i ${'../assest/sound/test.mp3'} -c:v mpeg4 ${uri}`,
+      // ).then(async session => {
+      //   const returnCode = await session.getReturnCode();
+      //   if (ReturnCode.isSuccess(returnCode)) {
+      //     // SUCCESS
+      //     console.log(returnCode);
+      //   } else if (ReturnCode.isCancel(returnCode)) {
+      //     // CANCEL
+      //   } else {
+      //     // ERROR
+      //   }
+      // });
     } catch (error) {
       console.log(error);
     }
@@ -93,6 +108,10 @@ const ImageEditor = ({route}: any) => {
       transform: [{scale: scale.value}],
     };
   });
+
+  // useEffect(() => {
+  // const dude = require('../assest/sound/aurealis-147578.mp3');
+  // }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -231,3 +250,65 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+// const [photoUri, setPhotoUri] = useState(null);
+// const [audioPath, setAudioPath] = useState(null);
+
+// const selectPhoto = () => {
+//   ImagePicker.showImagePicker({}, response => {
+//     if (response.uri) {
+//       setPhotoUri(response.uri);
+//     }
+//   });
+// };
+
+// const selectAudio = () => {
+//   ImagePicker.launchImageLibrary({mediaType: 'audio'}, response => {
+//     if (response.path) {
+//       setAudioPath(response.path);
+//     }
+//   });
+// };
+
+// const mergeFiles = () => {
+//   if (photoUri && audioPath) {
+//     const mergedFileName = 'merged.mp4'; // Output file name
+
+//     const dirs = RNFetchBlob.fs.dirs;
+//     const photoPath = photoUri.replace('file://', '');
+//     const audioExtension = audioPath.split('.').pop();
+
+//     const mergedFilePath = `${dirs.CacheDir}/${mergedFileName}`;
+
+//     // Merge photo and audio using FFmpeg command
+//     const command = `-i ${photoPath} -i ${audioPath} -c:v copy -c:a aac ${mergedFilePath}`;
+
+//     RNFetchBlob.fs.unlink(mergedFilePath).then(() => {
+//       RNFetchBlob.fs.exists(photoPath).then(photoExists => {
+//         if (photoExists) {
+//           RNFetchBlob.fs.exists(audioPath).then(audioExists => {
+//             if (audioExists) {
+//               RNFetchBlob.config({fileCache: true})
+//                 .fetch('POST', 'https://ffmpegserver.com/api/merge', {
+//                   'Content-Type': 'application/json',
+//                 })
+//                 .then(response => {
+//                   if (response.respInfo.status === 200) {
+//                     // Play the merged file
+//                     const mergedSound = new Sound(mergedFilePath, '', error => {
+//                       if (!error) {
+//                         mergedSound.play();
+//                       }
+//                     });
+//                   }
+//                 })
+//                 .catch(error => {
+//                   console.log('Merge failed: ', error);
+//                 });
+//             }
+//           });
+//         }
+//       });
+//     });
+//   }
+// };
